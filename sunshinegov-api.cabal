@@ -81,7 +81,8 @@ executable sunshinegov-api
                       postgresql-simple,
                       bytestring,
                       transformers,
-                      text
+                      text,
+                      http-types
 
     -- Directories containing source files.
     hs-source-dirs:   app

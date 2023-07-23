@@ -29,6 +29,9 @@ data Cursor = Cursor
   }
   deriving (Show)
 
+defaultCursor :: Cursor
+defaultCursor = Cursor 1 50
+
 getCursorParam :: ActionM Cursor
 getCursorParam = do
   result <- runMaybeT $ do

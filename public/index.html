@@ -16,28 +16,18 @@
         >
       </div>
       <div class="flex-none">
-        <ul class="menu menu-horizontal px-1">
-          <li><a hx-get="/about.html" hx-target="#output">About</a></li>
-          <li><a hx-get="/businesses?page=1" hx-target="#output">Businesses</a></li>
+        <ul class="menu menu-horizontal px-1" hx-target="#output">
+          <li><a hx-get="/about.html">About</a></li>
+          <li><a hx-get="/businesses?page=1">Businesses</a></li>
+          <li>
+            <a
+              hx-get="https://sv443.net/jokeapi/v2/joke/Any?format=txt&safe-mode"
+              >Joke</a
+            >
+          </li>
         </ul>
       </div>
     </div>
-    <main class="container" id="main">
-      <button
-        class="btn btn-primary"
-        hx-get="https://sv443.net/jokeapi/v2/joke/Any?format=txt&safe-mode"
-        hx-target="#output"
-        hx-indicator="#indicator"
-      >
-        New Joke
-      </button>
-
-      <span
-        id="indicator"
-        class="loading loading-spinner htmx-indicator"
-      ></span>
-
-      <article id="output" class="prose" />
-    </main>
+    <main class="container" id="output" />
   </body>
 </html>

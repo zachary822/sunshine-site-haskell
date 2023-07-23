@@ -37,14 +37,35 @@ businessRow (Business _ bid bname) = H.tr $ do
   H.th $ H.toHtml bid
   H.td $ H.toHtml bname
 
-businessTable :: Cursor -> Result Business -> Html
-businessTable (Cursor page size) Result{count = c, results = bs} = do
-  let maxPage = c `div` size + 1
+businessSearch :: Html
+businessSearch =
+  H.input
+    ! A.type_ "search"
+    ! A.name "search"
+    ! A.placeholder "Search"
+    ! A.class_ "input input-bordered w-full max-w-xs"
+    ! hx "post" "/businesses"
+    ! hx "trigger" "keyup changed delay:500ms, search"
+    ! hx "target" "#business-table"
 
-  pageButtons page maxPage
-
-  H.table ! A.class_ "table table-pin-rows" $ do
+businessTable :: [Business] -> Html
+businessTable businesses = do
+  H.table ! A.class_ "table table-pin-rows table-sm" $ do
     H.thead $ H.tr $ do
       H.th "ID"
       H.th "Name"
-    H.tbody $ mapM_ businessRow bs
+    H.tbody $ mapM_ businessRow businesses
+
+businessPaginatedTable :: Cursor -> Result Business -> Html
+businessPaginatedTable (Cursor page size) Result{count = c, results = bs} = do
+  let maxPage = c `div` size + 1
+
+  H.div ! A.id "business-table" $ do
+    pageButtons page maxPage
+    businessTable bs
+
+businessPage :: Cursor -> Result Business -> Html
+businessPage cursor result = do
+  H.div ! A.class_ "overflow-x-auto" $ do
+    businessSearch
+    businessPaginatedTable cursor result
