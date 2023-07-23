@@ -11,7 +11,9 @@ import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import Web.Scotty
 
 html :: Html -> ActionM ()
-html = raw . renderHtml
+html content = do
+  addHeader "Content-Type" "text/html; charset=utf-8"
+  raw $ renderHtml content
 
 indexName :: String -> String -> Maybe String
 indexName name "" = Just name

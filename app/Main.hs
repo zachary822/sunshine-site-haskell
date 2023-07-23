@@ -5,6 +5,7 @@ module Main where
 import Configuration.Dotenv
 import Data.ByteString.Char8 qualified as C
 import Data.Pool
+import Data.Text (strip)
 import Database.PostgreSQL.Simple
 import Lib.Db
 import Lib.Pages
@@ -29,7 +30,7 @@ app dbPool = do
     U.html $ businessPage cursor result
 
   S.post "/businesses" $ do
-    search <- S.param "search" `rescue` \_ -> raiseStatus status404 "not found"
+    search <- strip <$> S.param "search" `rescue` \_ -> raiseStatus status404 "not found"
     case search of
       "" -> do
         result <- getBusinessResult dbPool defaultCursor
