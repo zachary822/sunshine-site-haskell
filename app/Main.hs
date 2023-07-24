@@ -37,7 +37,7 @@ app dbPool = do
         U.html $ businessPaginatedTable defaultCursor result
       _ -> do
         Result{results = bs} <- getBusinessSearchResult dbPool search
-        U.html $ businessTable bs
+        U.html $ businessTable 1 bs
 
 main :: IO ()
 main = do

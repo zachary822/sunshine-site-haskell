@@ -2,6 +2,7 @@
 
 module Lib.Pages where
 
+import Control.Monad
 import Data.Text (Text)
 import Lib.Db
 import Lib.Utils
@@ -32,9 +33,10 @@ pageButtons page maxPage = H.div ! A.class_ "join" ! hx "target" "#output" $ do
   pageButton (page < maxPage) (page + 1) "›"
   pageButton (page < maxPage) maxPage "»"
 
-businessRow :: Business -> Html
-businessRow (Business _ bid bname) = H.tr $ do
-  H.th $ H.toHtml bid
+businessRow :: Integer -> Business -> Html
+businessRow rowNo (Business _ bid bname) = H.tr $ do
+  H.th $ toHtml rowNo
+  H.td $ H.toHtml bid
   H.td $ H.toHtml bname
 
 businessSearch :: Html
@@ -48,13 +50,14 @@ businessSearch =
     ! hx "trigger" "keyup changed delay:500ms, search"
     ! hx "target" "#business-table"
 
-businessTable :: [Business] -> Html
-businessTable businesses = do
+businessTable :: Integer -> [Business] -> Html
+businessTable start businesses = do
   H.table ! A.class_ "table table-pin-rows table-sm" $ do
     H.thead $ H.tr $ do
-      H.th "ID"
+      H.th "No."
+      H.th "ID."
       H.th "Name"
-    H.tbody $ mapM_ businessRow businesses
+    H.tbody $ zipWithM_ businessRow [start ..] businesses
 
 businessPaginatedTable :: Cursor -> Result Business -> Html
 businessPaginatedTable (Cursor page size) Result{count = c, results = bs} = do
@@ -62,7 +65,7 @@ businessPaginatedTable (Cursor page size) Result{count = c, results = bs} = do
 
   H.div ! A.id "business-table" $ do
     pageButtons page maxPage
-    businessTable bs
+    businessTable ((page - 1) * size + 1) bs
 
 businessPage :: Cursor -> Result Business -> Html
 businessPage cursor result = do

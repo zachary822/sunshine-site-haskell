@@ -3,7 +3,6 @@
 module Lib.Utils where
 
 import Control.Monad
-import Control.Monad.Trans.Maybe
 import Data.Text.Lazy (Text)
 import Network.Wai.Middleware.Static (Policy, policy)
 import Text.Blaze.Html (Html)
@@ -22,8 +21,8 @@ indexName _ path = Just path
 index :: String -> Policy
 index name = policy $ indexName name
 
-maybeParam :: (Parsable a) => Text -> a -> MaybeT ActionM a
-maybeParam name def = MaybeT $ (Just <$> param name) `rescue` (\_ -> return $ Just def)
+defaultParam :: Parsable a => Text -> a -> ActionM a
+defaultParam name def = param name `rescue` (\_ -> return def)
 
 data Cursor = Cursor
   { getPage :: Integer
@@ -36,23 +35,17 @@ defaultCursor = Cursor 1 50
 
 getCursorParam :: ActionM Cursor
 getCursorParam = do
-  result <- runMaybeT $ do
-    size <- maybeParam "size" 50
-    page <- maybeParam "page" 1
+  size <- defaultParam "size" 50
+  page <- defaultParam "page" 1
 
-    let sizeLowerBound = 1
-        sizeUpperBound = 100
-        pageLowerBound = 1
+  let sizeLowerBound = 1
+      sizeUpperBound = 100
+      pageLowerBound = 1
 
-    guard (sizeLowerBound <= size && size <= sizeUpperBound)
-    guard (pageLowerBound <= page)
+  guard (sizeLowerBound <= size && size <= sizeUpperBound)
+  guard (pageLowerBound <= page)
 
-    return
-      Cursor
-        { getSize = size
-        , getPage = page
-        }
-
-  case result of
-    Nothing -> raise "Either limit or offset parameter is out of bounds."
-    Just cursor -> return cursor
+  return Cursor
+    { getSize = size
+    , getPage = page
+    }
