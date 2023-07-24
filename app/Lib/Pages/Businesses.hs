@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Lib.Pages where
+module Lib.Pages.Businesses where
 
 import Control.Monad
 import Data.Text (Text)

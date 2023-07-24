@@ -21,7 +21,7 @@ indexName _ path = Just path
 index :: String -> Policy
 index name = policy $ indexName name
 
-defaultParam :: Parsable a => Text -> a -> ActionM a
+defaultParam :: (Parsable a) => Text -> a -> ActionM a
 defaultParam name def = param name `rescue` (\_ -> return def)
 
 data Cursor = Cursor
@@ -45,7 +45,11 @@ getCursorParam = do
   guard (sizeLowerBound <= size && size <= sizeUpperBound)
   guard (pageLowerBound <= page)
 
-  return Cursor
-    { getSize = size
-    , getPage = page
-    }
+  return
+    Cursor
+      { getSize = size
+      , getPage = page
+      }
+
+isHxRequest :: ActionM Bool
+isHxRequest = header "hx-request" >>= return . maybe False (== "true")

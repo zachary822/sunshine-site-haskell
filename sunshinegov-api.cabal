@@ -63,7 +63,7 @@ executable sunshinegov-api
     -- Modules included in this executable, other than Main.
     other-modules:    Lib.Utils,
                       Lib.Db,
-                      Lib.Pages,
+                      Lib.Pages.Businesses,
                       Lib.Query
 
     -- LANGUAGE extensions used by modules in this package.
@@ -82,7 +82,8 @@ executable sunshinegov-api
                       bytestring,
                       transformers,
                       text,
-                      http-types
+                      http-types,
+                      wai-cors
 
     -- Directories containing source files.
     hs-source-dirs:   app
