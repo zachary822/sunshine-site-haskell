@@ -53,3 +53,8 @@ getCursorParam = do
 
 isHxRequest :: ActionM Bool
 isHxRequest = header "hx-request" >>= return . maybe False (== "true")
+
+redirectNonHtmx :: ActionM ()
+redirectNonHtmx = do
+  isHtmx <- isHxRequest
+  unless isHtmx (redirect "/")

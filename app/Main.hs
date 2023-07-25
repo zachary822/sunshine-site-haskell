@@ -13,7 +13,7 @@ import Lib.Query
 import Lib.Utils as U
 import Network.HTTP.Types
 import Network.Wai.Middleware.Cors
-import Network.Wai.Middleware.RequestLogger (logStdoutDev)
+import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Network.Wai.Middleware.Static
 import System.Environment (getEnv, lookupEnv)
 import Web.Scotty as S
@@ -27,12 +27,16 @@ app dbPool = do
     file "public/index.html"
 
   S.get "/businesses" $ do
+    U.redirectNonHtmx
+
     cursor <- getCursorParam
     result <- getBusinessResult dbPool cursor
     U.html $ businessPage cursor result
 
   S.post "/businesses" $ do
-    search <- T.strip <$> S.param "search" `rescue` \_ -> raiseStatus status404 "not found"
+    U.redirectNonHtmx
+
+    search <- T.strip <$> S.param "search" `rescue` (const $ raiseStatus status404 "not found")
     S.status status200
     if T.null search
       then do
@@ -50,8 +54,11 @@ main = do
   dbPool <- newPool $ dbPoolConfig $ C.pack pgConn
 
   port <- lookupEnv "PORT" >>= return . maybe 8000 read
+  isDebug <- lookupEnv "DEBUG" >>= return . maybe False (flip elem ["1", "true"])
 
   scotty port $ do
-    middleware logStdoutDev
+    if isDebug
+      then middleware logStdoutDev
+      else middleware logStdout
     middleware simpleCors
     app dbPool
