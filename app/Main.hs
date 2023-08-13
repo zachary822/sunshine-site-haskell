@@ -14,7 +14,6 @@ import Database.PostgreSQL.Simple
 import Lib.Db
 import Lib.Query
 import Lib.Utils as U
-import Network.HTTP.Types
 import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Network.Wai.Middleware.Static
@@ -50,51 +49,34 @@ app dbPool templateCacheTVar = do
     renderCompiled templateCacheTVar "index.mustache" ()
 
   S.get "/businesses" $ do
-    U.redirectNonHtmx
-
     cursor <- getCursorParam
-    result <- getBusinessResult dbPool cursor
+    search <- T.strip <$> S.param "search" `rescue` const (return "")
+
+    target <- S.header "HX-Target"
+
+    let templateName =
+          if Just "business-table" == target
+            then "businesses/business_search_result.mustache"
+            else "businesses/businesses.mustache"
+
+    result <-
+      if T.null search
+        then getBusinessResult dbPool cursor
+        else getBusinessSearchResult dbPool search cursor
 
     let page = getPage cursor
         maxPage = total result `div` getSize cursor + 1
+        values =
+          [ "page" ~> getPage cursor
+          , "maxPage" ~> maxPage
+          , "disableFirst" ~> (page == 1)
+          , "disableLast" ~> (page == maxPage)
+          , "nextPage" ~> (page + 1)
+          , "prevPage" ~> (page - 1)
+          , "results" ~> results result
+          ]
 
-    renderCompiled templateCacheTVar "businesses/businesses.mustache" $
-      object
-        [ "page" ~> getPage cursor
-        , "maxPage" ~> maxPage
-        , "disableFirst" ~> (page == 1)
-        , "disableLast" ~> (page == maxPage)
-        , "nextPage" ~> (page + 1)
-        , "prevPage" ~> (page - 1)
-        , "results" ~> results result
-        ]
-
-  S.post "/businesses" $ do
-    U.redirectNonHtmx
-
-    search <- T.strip <$> S.param "search" `rescue` const (raiseStatus status404 "not found")
-    S.status status200
-
-    if T.null search
-      then do
-        result <- getBusinessResult dbPool defaultCursor
-
-        let maxPage = total result `div` getSize defaultCursor + 1
-            page = getPage defaultCursor
-
-        renderCompiled templateCacheTVar "businesses/business_search_result.mustache" $
-          object
-            [ "page" ~> page
-            , "maxPage" ~> maxPage
-            , "disableFirst" ~> (page == 1)
-            , "disableLast" ~> (page == maxPage)
-            , "nextPage" ~> (page + 1)
-            , "prevPage" ~> (page - 1)
-            , "results" ~> results result
-            ]
-      else do
-        result <- getBusinessSearchResult dbPool search
-        renderCompiled templateCacheTVar "businesses/business_search_result.mustache" result
+    renderCompiled templateCacheTVar templateName $ object (if T.null search then values else ("search" ~> search) : values)
 
 main :: IO ()
 main = do

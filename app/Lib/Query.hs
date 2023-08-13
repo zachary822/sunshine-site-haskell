@@ -32,10 +32,12 @@ getBusinessResult dbPool cursor = lift $ withResource dbPool $ \conn -> withTran
 
   return $ Result count businesses
 
-getBusinessSearchResult :: (MonadTrans t) => Pool Connection -> Text -> t IO (Result Business)
-getBusinessSearchResult dbPool term = lift $ withResource dbPool $ \conn -> withTransaction conn $ do
+getBusinessSearchResult :: (MonadTrans t) => Pool Connection -> Text -> Cursor -> t IO (Result Business)
+getBusinessSearchResult dbPool term cursor = lift $ withResource dbPool $ \conn -> withTransaction conn $ do
   let like :: String
       like = printf "%%%s%%" term
+      limit = getSize cursor
+      offset = (getPage cursor - 1) * limit
 
   businesses <-
     query
@@ -45,8 +47,9 @@ getBusinessSearchResult dbPool term = lift $ withResource dbPool $ \conn -> with
         from business
         where name like ? or business_identifier like ?
         order by business_identifier
+        limit ? offset ?
       |]
-      (like, like)
+      (like, like, limit, offset)
   [Only count] <-
     query
       conn

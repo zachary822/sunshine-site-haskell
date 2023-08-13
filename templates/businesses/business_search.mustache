@@ -3,7 +3,7 @@
   name="search"
   placeholder="Search"
   class="input input-bordered w-full max-w-xs"
-  hx-post="/businesses"
+  hx-get="/businesses?page=1"
   hx-trigger="keyup changed delay:500ms, search"
   hx-target="#business-table"
 />
