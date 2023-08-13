@@ -66,17 +66,18 @@ app dbPool templateCacheTVar = do
 
     let page = getPage cursor
         maxPage = total result `div` getSize cursor + 1
-        values =
-          [ "page" ~> getPage cursor
-          , "maxPage" ~> maxPage
-          , "disableFirst" ~> (page == 1)
-          , "disableLast" ~> (page == maxPage)
-          , "nextPage" ~> (page + 1)
-          , "prevPage" ~> (page - 1)
-          , "results" ~> results result
-          ]
 
-    renderCompiled templateCacheTVar templateName $ object (if T.null search then values else ("search" ~> search) : values)
+    renderCompiled templateCacheTVar templateName $
+      object
+        [ "page" ~> getPage cursor
+        , "maxPage" ~> maxPage
+        , "disableFirst" ~> (page == 1)
+        , "disableLast" ~> (page == maxPage)
+        , "nextPage" ~> (page + 1)
+        , "prevPage" ~> (page - 1)
+        , "results" ~> results result
+        , if T.null search then "search" ~> False else "search" ~> search
+        ]
 
 main :: IO ()
 main = do
