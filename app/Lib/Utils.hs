@@ -5,14 +5,7 @@ module Lib.Utils where
 import Control.Monad
 import Data.Text.Lazy (Text)
 import Network.Wai.Middleware.Static (Policy, policy)
-import Text.Blaze.Html (Html)
-import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import Web.Scotty
-
-html :: Html -> ActionM ()
-html content = do
-  addHeader "Content-Type" "text/html; charset=utf-8"
-  raw $ renderHtml content
 
 indexName :: String -> String -> Maybe String
 indexName name "" = Just name
@@ -52,7 +45,7 @@ getCursorParam = do
       }
 
 isHxRequest :: ActionM Bool
-isHxRequest = header "hx-request" >>= return . maybe False (== "true")
+isHxRequest = (Just "true" ==) <$> header "hx-request"
 
 redirectNonHtmx :: ActionM ()
 redirectNonHtmx = do

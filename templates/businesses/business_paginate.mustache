@@ -1,0 +1,7 @@
+<div class="join" hx-target="#output">
+    <button class="join-item btn" hx-get="/businesses?page=1" {{#disableFirst}}disabled{{/disableFirst}}>«</button>
+    <button class="join-item btn" hx-get="/businesses?page={{prevPage}}" {{#disableFirst}}disabled{{/disableFirst}}>‹</button>
+    <button class="join-item btn">Page {{page}}</button>
+    <button class="join-item btn" hx-get="/businesses?page={{nextPage}}" {{#disableLast}}disabled{{/disableLast}}>›</button>
+    <button class="join-item btn" hx-get="/businesses?page={{maxPage}}" {{#disableLast}}disabled{{/disableLast}}>»</button>
+</div>

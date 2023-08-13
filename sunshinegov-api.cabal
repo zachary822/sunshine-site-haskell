@@ -63,7 +63,6 @@ executable sunshinegov-api
     -- Modules included in this executable, other than Main.
     other-modules:    Lib.Utils,
                       Lib.Db,
-                      Lib.Pages.Businesses,
                       Lib.Query
 
     -- LANGUAGE extensions used by modules in this package.
@@ -72,8 +71,6 @@ executable sunshinegov-api
     -- Other library packages from which modules are imported.
     build-depends:    base ^>=4.18.0.0,
                       scotty,
-                      blaze-html,
-                      blaze-markup,
                       wai-extra,
                       wai-middleware-static,
                       dotenv,
@@ -83,7 +80,10 @@ executable sunshinegov-api
                       transformers,
                       text,
                       http-types,
-                      wai-cors
+                      wai-cors,
+                      mustache,
+                      stm,
+                      unordered-containers
 
     -- Directories containing source files.
     hs-source-dirs:   app
