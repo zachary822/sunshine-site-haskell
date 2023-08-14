@@ -1,33 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Taiwan Sunshine Government</title>
-
-    <link href="/styles/output.css" rel="stylesheet" />
-    <script src="/js/htmx.min.js"></script>
-  </head>
+  {{>head.mustache}}
   <body>
-    <div class="navbar bg-primary text-primary-content">
-      <div class="flex-1">
-        <a class="btn btn-ghost normal-case text-xl" href="/"
-          >Taiwan Sunshine Government</a
-        >
-      </div>
-      <div class="flex-none">
-        <ul class="menu menu-horizontal px-1" hx-target="#output">
-          <li><a hx-get="/about.html">About</a></li>
-          <li><a hx-get="/businesses?page=1">Businesses</a></li>
-          <li>
-            <a
-              hx-get="https://sv443.net/jokeapi/v2/joke/Any?format=txt&safe-mode"
-              >Joke</a
-            >
-          </li>
-        </ul>
-      </div>
-    </div>
+    {{>navbar.mustache}}
     <main class="container" id="output" />
   </body>
 </html>

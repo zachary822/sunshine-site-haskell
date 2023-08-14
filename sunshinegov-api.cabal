@@ -83,7 +83,9 @@ executable sunshinegov-api
                       wai-cors,
                       mustache,
                       stm,
-                      unordered-containers
+                      unordered-containers,
+                      neat-interpolation,
+                      filepath
 
     -- Directories containing source files.
     hs-source-dirs:   app

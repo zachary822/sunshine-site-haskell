@@ -1,0 +1,20 @@
+<div class="navbar bg-primary text-primary-content">
+  <div class="flex-1">
+    <a class="btn btn-ghost normal-case text-xl" href="/"
+      >Taiwan Sunshine Government</a
+    >
+  </div>
+  <div class="flex-none">
+    <ul class="menu menu-horizontal px-1" hx-target="#output">
+      <li><a hx-get="/about" hx-push-url="true">About</a></li>
+      <li><a hx-get="/businesses?page=1" hx-push-url="true">Businesses</a></li>
+      <li>
+        <a
+          hx-get="https://sv443.net/jokeapi/v2/joke/Any?format=txt&safe-mode"
+          hx-push-url="/"
+          >Joke</a
+        >
+      </li>
+    </ul>
+  </div>
+</div>

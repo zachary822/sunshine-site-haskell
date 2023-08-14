@@ -4,12 +4,9 @@ module Main where
 
 import Configuration.Dotenv
 import Control.Concurrent.STM
-import Control.Monad.Trans.Class
 import Data.ByteString.Char8 qualified as C
-import Data.HashMap.Strict qualified as Map
 import Data.Pool
 import Data.Text qualified as T
-import Data.Text.Lazy qualified as TL
 import Database.PostgreSQL.Simple
 import Lib.Db
 import Lib.Query
@@ -19,26 +16,11 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Network.Wai.Middleware.Static
 import System.Environment (getEnv, lookupEnv)
 import Text.Mustache
-import Text.Mustache.Compile (TemplateCache, cacheFromList)
+import Text.Mustache.Compile (TemplateCache)
 import Web.Scotty as S
-
-searchSpace :: [String]
-searchSpace = [".", "./templates"]
 
 newTemplateCache :: IO (TVar TemplateCache)
 newTemplateCache = newTVarIO mempty
-
-renderCompiled :: (ToMustache k) => TVar TemplateCache -> FilePath -> k -> ActionM ()
-renderCompiled templateCacheTVar name values = do
-  cache <- lift $ readTVarIO templateCacheTVar
-  compiled <- lift $ compileTemplateWithCache searchSpace cache name
-
-  case compiled of
-    Left err -> raise (TL.pack $ show err)
-    Right template -> do
-      let cache' = cacheFromList [template]
-      lift $ atomically $ modifyTVar' templateCacheTVar (Map.union cache')
-      S.html . TL.fromStrict $ substitute template values
 
 app :: Pool Connection -> TVar TemplateCache -> ScottyM ()
 app dbPool templateCacheTVar = do
@@ -48,26 +30,22 @@ app dbPool templateCacheTVar = do
   S.get "" $ do
     renderCompiled templateCacheTVar "index.mustache" ()
 
+  S.get "/about" $ do
+    renderHxPage templateCacheTVar "about.mustache" ()
+
   S.get "/businesses" $ do
     cursor <- getCursorParam
-    search <- T.strip <$> S.param "search" `rescue` const (return "")
-
-    target <- S.header "HX-Target"
-
-    let templateName =
-          if Just "business-table" == target
-            then "businesses/business_search_result.mustache"
-            else "businesses/businesses.mustache"
+    search <- lookupParam "search" >>= (\x -> if x == Just "" then return Nothing else return x) . fmap T.strip
 
     result <-
-      if T.null search
-        then getBusinessResult dbPool cursor
-        else getBusinessSearchResult dbPool search cursor
+      case search of
+        Nothing -> getBusinessResult dbPool cursor
+        Just term -> getBusinessSearchResult dbPool term cursor
 
     let page = getPage cursor
         maxPage = total result `div` getSize cursor + 1
 
-    renderCompiled templateCacheTVar templateName $
+    renderHxPage templateCacheTVar "businesses/businesses.mustache" $
       object
         [ "page" ~> getPage cursor
         , "maxPage" ~> maxPage
@@ -76,7 +54,7 @@ app dbPool templateCacheTVar = do
         , "nextPage" ~> (page + 1)
         , "prevPage" ~> (page - 1)
         , "results" ~> results result
-        , if T.null search then "search" ~> False else "search" ~> search
+        , "search" ~> search
         ]
 
 main :: IO ()
