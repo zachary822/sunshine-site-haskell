@@ -31,7 +31,7 @@ app dbPool templateCacheTVar = do
     renderCompiled templateCacheTVar "index.mustache" ()
 
   S.get "/about" $ do
-    renderHxPage templateCacheTVar "about.mustache" ()
+    renderFullCompiled templateCacheTVar "about.mustache" ()
 
   S.get "/businesses" $ do
     cursor <- getCursorParam
@@ -45,7 +45,7 @@ app dbPool templateCacheTVar = do
     let page = getPage cursor
         maxPage = total result `div` getSize cursor + 1
 
-    renderHxPage templateCacheTVar "businesses/businesses.mustache" $
+    renderFullCompiled templateCacheTVar "businesses/businesses.mustache" $
       object
         [ "page" ~> getPage cursor
         , "maxPage" ~> maxPage

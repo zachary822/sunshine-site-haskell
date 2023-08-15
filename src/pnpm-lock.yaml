@@ -11,9 +11,6 @@ dependencies:
   daisyui:
     specifier: ^3.5.1
     version: 3.5.1
-  htmx.org:
-    specifier: ^1.9.4
-    version: 1.9.4
   tailwindcss:
     specifier: ^3.3.3
     version: 3.3.3
@@ -268,10 +265,6 @@ packages:
     engines: {node: '>= 0.4.0'}
     dependencies:
       function-bind: 1.1.1
-    dev: false
-
-  /htmx.org@1.9.4:
-    resolution: {integrity: sha512-GB9afD20gYw708z2PjClwlDgNtD1p4RYQtlDKak/JyMhrgiSL8sPfGqdkNmSLrhuCFekWw9mLpRNK/+Xn9aayA==}
     dev: false
 
   /inflight@1.0.6:
